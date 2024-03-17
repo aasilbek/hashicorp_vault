@@ -58,10 +58,8 @@ Find file path with
 sudo find / -name "postgresql.conf"
 sudo find / -name pg_hba.conf
 ```
-Change postgresql.conf file . Find  listen_addresses variable and set it to *
-listen_addresses = '*'
-
-
+Change postgresql.conf file . Find  listen_addresses variable and set it to * </br>
+listen_addresses = '*' </br>
 
 Change pg_hba.conf file . Add this to the end of file
 ```bash
@@ -69,7 +67,7 @@ host    all             all              0.0.0.0/0                       md5
 host    all             all              ::/0                            md5
 ```
 
-Restart posgres service
+Restart postgres service
 ```bash
 sudo systemctl restart postgresql
 ```
