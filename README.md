@@ -20,6 +20,11 @@ Change credentials in config/vault.hcl file. Later you will need them while crea
 ```
 
 ## Setup Postgres
+### Change user to postgres and run psql
+```bash
+su postgres
+psql
+```
 ### Database credentials must be same as in config/vault.hcl.
 ```bash
 CREATE DATABASE vault;
@@ -30,8 +35,11 @@ ALTER ROLE vault SET timezone TO 'UTC';
 GRANT ALL PRIVILEGES ON DATABASE vault TO vault;
 
 ```
-
-### Create database table
+Log out from postgres user and use vault user
+```bash
+ psql -U vault -d vault -h localhost
+```
+### Create database tables
 ```bash
 CREATE TABLE vault_kv_store (
   parent_path TEXT COLLATE "C" NOT NULL,
@@ -63,8 +71,8 @@ listen_addresses = '*' </br>
 
 Change pg_hba.conf file . Add this to the end of file
 ```bash
-host    all             all              0.0.0.0/0                       md5
-host    all             all              ::/0                            md5
+host    all             all              0.0.0.0/0              md5
+host    all             all              ::/0                   md5
 ```
 
 Restart postgres service
