@@ -8,7 +8,7 @@ disable_cache = true
 
 
 storage "postgresql" {
-  connection_url = "postgres://${VAULT_DB_USERNAME}:${VAULT_DB_PASSWORD}@${VAULT_DB_HOST}:${VAULT_DB_PORT}/{VAULT_DB_NAME}"
+  connection_url = "postgres://vault:vaultSecretPassowrd@{IP_ADDRESS}:5432/vault"
 }
 
 #storage "consul" {

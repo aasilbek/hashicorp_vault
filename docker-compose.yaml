@@ -2,6 +2,7 @@ version: "3.6"
 
 services:
   vault:
+    container_name: vault_container
     image: vault:1.13.3
     volumes:
       - ./vault/config:/vault/config
