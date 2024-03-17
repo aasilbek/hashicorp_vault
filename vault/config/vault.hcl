@@ -6,11 +6,9 @@ ui = true
 disable_mlock = true
 disable_cache = true
 
+
 storage "postgresql" {
-    connection_url = "postgres://vault:SuperSecretPassword@95.217.21.150:5432/vault"
-}
-storage "postgresql" {
-    connection_url = "postgres://${VAULT_DB_USERNAME}:${VAULT_DB_PASSWORD}@${VAULT_DB_HOST}:${VAULT_DB_PORT}/{VAULT_DB_NAME}"
+  connection_url = "postgres://${VAULT_DB_USERNAME}:${VAULT_DB_PASSWORD}@${VAULT_DB_HOST}:${VAULT_DB_PORT}/{VAULT_DB_NAME}"
 }
 
 #storage "consul" {
