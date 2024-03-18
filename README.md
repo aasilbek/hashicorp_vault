@@ -138,3 +138,21 @@ helm repo add hashicorp https://helm.releases.hashicorp.com
 
 helm install vault hashicorp/vault --set="injector.enabled=true" --set=injector.externalVaultAddr=https://vault.asilbek.com -n vault --create-namespace
 ```
+
+## Create Secret for service account on your cluster
+```bash
+cat > service_account_secret.yaml <<EOF 
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vault-token-g955r
+  namespace: vault
+  annotations:
+    kubernetes.io/service-account.name: vault
+type: kubernetes.io/service-account-token
+
+EOF
+
+kubectl apply -f service_account_secret.yaml -n vault
+```
