@@ -130,3 +130,11 @@ sudo systemctl restart nginx
 ```bash
 certbot
 ```
+
+## Install vault agent on your kubernetes cluster
+
+```bash
+helm repo add hashicorp https://helm.releases.hashicorp.com
+
+helm install vault hashicorp/vault --set="injector.enabled=true" --set=injector.externalVaultAddr=https://vault.asilbek.com -n vault --create-namespace
+```
