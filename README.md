@@ -156,3 +156,15 @@ EOF
 
 kubectl apply -f service_account_secret.yaml -n vault
 ```
+
+## Configuration of vault
+
+* Unseal vault with given keys
+* Create Enable new engine with "secret" name.
+
+![alt text](image.png)
+![alt text](image-1.png)
+* Choose KV  and name it secret
+![alt text](image-2.png)
+Create secret inside this engine
+![alt text](image-3.png)
