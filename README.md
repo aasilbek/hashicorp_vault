@@ -3,22 +3,28 @@ Create required folders
 
 ```bash
 {
-  sudo mkdir -p vault/config
-  sudo mkdir -p vault/data
-  sudo mkdir -p vault/policies
+  sudo mkdir -p /vault/config
+  sudo mkdir -p /vault/data
+  sudo mkdir -p /vault/policies
 }
 ```
 
 Create  vault/config/vault.hcl file. Change database creadentials
 ```bash
-cat > vault/config/vault.hcl <<EOF
+cat > /vault/config/vault.hcl <<EOF
 # Full configuration options can be found at https://www.vaultproject.io/docs/configuration
 ui = true
 disable_mlock = true
 disable_cache = true
 
 storage "postgresql" {
-  connection_url = "postgres://vault:vaultSecretPassword@{IP_ADDRESS}:5432/vault"
+  connection_url = "postgres://vault:vaultSecretPassword@45.156.21.250:5432/vault"
+}
+
+# HTTPS listener
+listener "tcp" {
+  address       = "0.0.0.0:8200"
+  tls_disable   = 1
 }
 
 EOF
@@ -105,15 +111,19 @@ Requires=docker.service
 [Service]
 ExecStartPre=-/usr/bin/docker stop -t 60 vault
 ExecStartPre=-/usr/bin/docker rm vault
-ExecStart=/usr/bin/docker run \
-  --rm \
-  --name vaul \
-  --publish 8200:8200 \
-  -v /vault/config:/vault/config \
-  -v /vault/policies:/vault/policies \
-  -v /vault/data:/vault/data \
-  vault:1.13.3 \
-  --cap-add IPC_LOCK server -config=/vault/config/vault.hcl
+ExecStart=/usr/bin/docker run \\
+  --rm \\
+  --name vault \\
+  --publish 8200:8200 \\
+  -v /vault/config:/vault/config \\
+  -v /vault/policies:/vault/policies \\
+  -v /vault/data:/vault/data \\
+  --cap-add IPC_LOCK  \\
+  -e VAULT_ADDR=http://0.0.0.0:8200 \\
+  -e VAULT_API_ADDR=http://0.0.0.0:8200 \\
+  -e VAULT_ADDRESS=http://0.0.0.0:8200 \\
+  vault:1.13.3 \\
+  vault server -config=/vault/config/vault.hcl
 ExecStop=-/usr/bin/docker stop -t 60 vault
 
 ExecReload=/usr/bin/docker restart 'vault'
@@ -124,8 +134,7 @@ RestartSec=20s
 SuccessExitStatus=SIGKILL SIGTERM 143 137
 
 [Install]
-WantedBy=multi-user.target
-WantedBy=docker.service
+WantedBy=multi-user.target docker.service
 
 EOF
 ```
