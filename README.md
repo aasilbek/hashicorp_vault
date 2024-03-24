@@ -1,22 +1,36 @@
 # Setup HashiCorp Vault
-Copy this repo to your server or make similar structure.
-```bash
-git clone https://github.com/aasilbek/vault.git
-```
-Change credentials in config/vault.hcl file. Later you will need them while creating database.
+Create required folders
 
+```bash
+{
+  sudo mkdir -p vault/config
+  sudo mkdir -p vault/data
+  sudo mkdir -p vault/policies
+}
+```
+
+Create  vault/config/vault.hcl file. Change database creadentials
+```bash
+cat > vault/config/vault.hcl <<EOF
+# Full configuration options can be found at https://www.vaultproject.io/docs/configuration
+ui = true
+disable_mlock = true
+disable_cache = true
+
+storage "postgresql" {
+  connection_url = "postgres://vault:vaultSecretPassword@{IP_ADDRESS}:5432/vault"
+}
+
+EOF
+
+```
 ## Install required tools
 
 ```bash
 {
     sudo apt update
     sudo apt-get install postgresql nginx certbot python3-certbot-nginx docker.io make docker-compose -y
-    
 }
-```
-```bash
-    sudo gpasswd -a $USER docker
-    newgrp docker
 ```
 
 ## Setup Postgres
@@ -79,14 +93,53 @@ Restart postgres service
 ```bash
 sudo systemctl restart postgresql
 ```
-
-## Run docker-compose command to start container
+# Create vault unit file
 ```bash
-docker-compose up -d
+cat > /etc/systemd/system/vault.service <<EOF 
+
+[Unit]
+Description=Docker Service for hashicorp vault
+After=network.service docker.service
+Requires=docker.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker stop -t 60 vault
+ExecStartPre=-/usr/bin/docker rm vault
+ExecStart=/usr/bin/docker run \
+  --rm \
+  --name vaul \
+  --publish 8200:8200 \
+  -v /vault/config:/vault/config \
+  -v /vault/policies:/vault/policies \
+  -v /vault/data:/vault/data \
+  vault:1.13.3 \
+  --cap-add IPC_LOCK server -config=/vault/config/vault.hcl
+ExecStop=-/usr/bin/docker stop -t 60 vault
+
+ExecReload=/usr/bin/docker restart 'vault'
+
+Restart=always
+RestartSec=20s
+
+SuccessExitStatus=SIGKILL SIGTERM 143 137
+
+[Install]
+WantedBy=multi-user.target
+WantedBy=docker.service
+
+EOF
+```
+## Run vault service
+```bash
+{
+  sudo systemctl daemon-reload
+  sudo systemctl enable vault
+  sudo systemctl restart vault
+}
 ```
 Initialize vault and save output . 
 ```bash
-docker exec -it vault_container vault operator init
+docker exec -it vault vault operator init
 ```
 
 ## Setup Nginx. Use nginx_example file.
