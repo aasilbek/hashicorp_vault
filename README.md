@@ -8,7 +8,14 @@ Create required folders
   sudo mkdir -p /vault/policies
 }
 ```
-
+Set env variables:
+```bash
+DB_NAME=vault
+DB_PASSWORD=vaultSecretPassword
+DB_USER=vault
+DB_HOST=$(curl ifconfig.me)
+DOMAIN_NAME=hashicorp-vault.asilbek.com
+```
 Create  vault/config/vault.hcl file. Change database creadentials
 ```bash
 cat > /vault/config/vault.hcl <<EOF
@@ -18,7 +25,7 @@ disable_mlock = true
 disable_cache = true
 
 storage "postgresql" {
-  connection_url = "postgres://vault:vaultSecretPassword@45.156.21.250:5432/vault"
+  connection_url = "postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:5432/$DB_NAME"
 }
 
 # HTTPS listener
@@ -35,7 +42,7 @@ EOF
 ```bash
 {
     sudo apt update
-    sudo apt-get install postgresql nginx certbot python3-certbot-nginx docker.io make docker-compose -y
+    sudo apt-get install postgresql nginx certbot docker.io -y
 }
 ```
 
@@ -148,21 +155,19 @@ EOF
 ```
 Initialize vault and save output . 
 ```bash
-docker exec -it vault vault operator init
+docker exec -it vault vault operator init > secrets
 ```
 
 ## Setup Nginx. Use nginx_example file.
 ```bash
-sudo vim /etc/nginx/sites-available/vault
-```
-Put this and change domain name
-```bash
+cat  > /etc/nginx/sites-available/vault <<EOF
+
 upstream vault {
         server 127.0.0.1:8200 max_fails=0 fail_timeout=0;
 }
 
 server {
-        server_name vault.asilbek.com;
+        server_name $DOMAIN_NAME;
 
         location / {
                 proxy_pass http://vault;
@@ -176,6 +181,7 @@ server {
         access_log /var/log/nginx/app-access.log;
         error_log /var/log/nginx/app-error.log;
 }
+EOF
 ```
 Check nginx file. 
 ```bash
@@ -224,9 +230,9 @@ kubectl apply -f service_account_secret.yaml -n vault
 * Unseal vault with given keys
 * Create Enable new engine with "secret" name.
 
-![alt text](image.png)
-![alt text](image-1.png)
+![alt text](images/image.png)
+![alt text](images/image-1.png)
 * Choose KV  and name it secret
-![alt text](image-2.png)
+![alt text](images/image-2.png)
 Create secret inside this engine
-![alt text](image-3.png)
+![alt text](images/image-3.png)
