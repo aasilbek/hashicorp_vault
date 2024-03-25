@@ -49,7 +49,7 @@ EOF
 ## Setup Postgres
 ### Change user to postgres and run psql
 ```bash
-su postgres
+su postgres  
 psql
 ```
 ### Database credentials must be same as in config/vault.hcl.
@@ -64,7 +64,7 @@ GRANT ALL PRIVILEGES ON DATABASE vault TO vault;
 ```
 Log out from postgres user and use vault user
 ```bash
- psql -U vault -d vault -h localhost
+PGPASSWORD=vaultSecretPassword psql -U vault -d vault -h localhost
 ```
 ### Create database tables
 ```bash
@@ -172,11 +172,12 @@ server {
         location / {
                 proxy_pass http://vault;
                 proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Upgrade \$http_upgrade;
                 proxy_set_header Connection 'upgrade';
-                proxy_set_header Host $host;
-                proxy_cache_bypass $http_upgrade;
+                proxy_set_header Host \$host;
+                proxy_cache_bypass \$http_upgrade;
                 client_max_body_size 0;
+                
         }
         access_log /var/log/nginx/app-access.log;
         error_log /var/log/nginx/app-error.log;
