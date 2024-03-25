@@ -237,3 +237,12 @@ kubectl apply -f service_account_secret.yaml -n vault
 ![alt text](images/image-2.png)
 Create secret inside this engine
 ![alt text](images/image-3.png)
+
+## Run script in order to create role and policies
+[Script](vault.sh)
+```bash
+/vault.sh hvs.7JQax7tCoJ5SUJ4nLeUG1AuH https://vault.asilbek.com  prod
+```
+
+There is example of deployment manifest which have annotations in order to read secrets from vault.
+[Deployment](deployment.yaml)
